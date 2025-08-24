@@ -11,7 +11,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		BD94A3972E588C1D000071FC /* Exceptions for "TestSignInWithApple" folder in "TestSignInWithApple" target */ = {
+		BD9EEA372E5AFC0E0022F526 /* Exceptions for "TestSignInWithApple" folder in "TestSignInWithApple" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -24,7 +24,7 @@
 		BD94C91A2E584DD80068EAAA /* TestSignInWithApple */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				BD94A3972E588C1D000071FC /* Exceptions for "TestSignInWithApple" folder in "TestSignInWithApple" target */,
+				BD9EEA372E5AFC0E0022F526 /* Exceptions for "TestSignInWithApple" folder in "TestSignInWithApple" target */,
 			);
 			path = TestSignInWithApple;
 			sourceTree = "<group>";

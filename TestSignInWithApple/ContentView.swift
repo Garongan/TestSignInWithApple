@@ -6,6 +6,7 @@
 //
 
 import AuthenticationServices
+import CloudKit
 import CryptoKit
 import SwiftUI
 
@@ -54,14 +55,6 @@ struct ContentView: View {
             credential.fullName?.givenName, credential.fullName?.familyName,
         ]
         .compactMap { $0 }.joined(separator: " ").nilIfEmpty
-        let body = Payload(
-            id_token: identityToken,
-            authorization_code: authorizationCode,
-            raw_nonce: nonce,
-            full_name: name,
-            email: credential.email
-        )
-        print(body)
 
         if let token = String(data: identityTokenData, encoding: .utf8) {
 
@@ -79,6 +72,12 @@ struct ContentView: View {
                 }
             }
         }
+
+        saveToICloudDatabase(
+            appleUserId: credential.user,
+            displayName: name ?? "",
+            emailRelay: credential.email ?? ""
+        )
     }
 
     func sha256(_ input: String) -> String {
@@ -128,6 +127,30 @@ struct ContentView: View {
         guard let data = Data(base64Encoded: padded) else { return nil }
         let json = try? JSONSerialization.jsonObject(with: data, options: [])
         return json as? [String: Any]
+    }
+
+    func saveToICloudDatabase(
+        appleUserId: String,
+        displayName: String,
+        emailRelay: String
+    ) {
+        let record = CKRecord(recordType: "User")
+        record.setValuesForKeys([
+            "appleUserId": appleUserId,
+            "displayName": displayName,
+            "emailRelay": emailRelay,
+        ])
+
+        let container = CKContainer(identifier: "iCloud.TestUserData")
+        let database = container.publicCloudDatabase
+
+        database.save(record) { record, error in
+            if let error = error {
+                print("Error saving record: \(error)")
+            } else {
+                print("Record saved successfully!")
+            }
+        }
     }
 
 }
