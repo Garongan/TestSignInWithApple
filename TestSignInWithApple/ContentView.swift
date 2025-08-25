@@ -56,6 +56,8 @@ struct ContentView: View {
         ]
         .compactMap { $0 }.joined(separator: " ").nilIfEmpty
 
+        var email: String?
+
         if let token = String(data: identityTokenData, encoding: .utf8) {
 
             if let payload = decode(jwtToken: token) {
@@ -63,8 +65,9 @@ struct ContentView: View {
                 if let sub = payload["sub"] as? String {
                     print("Apple user id:", sub)
                 }
-                if let email = payload["email"] as? String {
-                    print("Email (mungkin relay):", email)
+                if let emailFromPayload = payload["email"] as? String {
+                    print("Email (mungkin relay):", emailFromPayload)
+                    email = emailFromPayload
                 }
                 if let exp = payload["exp"] as? Double {
                     let expDate = Date(timeIntervalSince1970: exp)
@@ -73,10 +76,10 @@ struct ContentView: View {
             }
         }
 
-        saveToICloudDatabase(
+        saveToiCloudDatabase(
             appleUserId: credential.user,
             displayName: name ?? "",
-            emailRelay: credential.email ?? ""
+            emailRelay: email!
         )
     }
 
@@ -129,26 +132,32 @@ struct ContentView: View {
         return json as? [String: Any]
     }
 
-    func saveToICloudDatabase(
+    func saveToiCloudDatabase(
         appleUserId: String,
         displayName: String,
         emailRelay: String
     ) {
-        let record = CKRecord(recordType: "User")
-        record.setValuesForKeys([
-            "appleUserId": appleUserId,
-            "displayName": displayName,
-            "emailRelay": emailRelay,
-        ])
-
         let container = CKContainer(identifier: "iCloud.TestUserData")
         let database = container.publicCloudDatabase
-
-        database.save(record) { record, error in
-            if let error = error {
-                print("Error saving record: \(error)")
+        
+        let rid = CKRecord.ID(recordName: "user_\(appleUserId)")
+        database.fetch(withRecordID: rid) { existing, err in
+            if let ckErr = err as? CKError, ckErr.code == .unknownItem {
+                // belum ada → buat baru
+                let record = CKRecord(recordType: "User", recordID: rid)
+                record.setValuesForKeys([
+                    "displayName": displayName,
+                    "emailRelay": emailRelay,
+                ])
+                database.save(record) { record, error in
+                    if let error = error {
+                        print("Error saving record: \(error)")
+                    } else {
+                        print("Record saved successfully!")
+                    }
+                }
             } else {
-                print("Record saved successfully!")
+                print("Data already exists")
             }
         }
     }
