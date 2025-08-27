@@ -140,7 +140,7 @@ struct ContentView: View {
         let container = CKContainer(identifier: "iCloud.TestUserData")
         let database = container.publicCloudDatabase
         
-        let rid = CKRecord.ID(recordName: "user_\(appleUserId)")
+        let rid = CKRecord.ID(recordName: appleUserId)
         database.fetch(withRecordID: rid) { existing, err in
             if let ckErr = err as? CKError, ckErr.code == .unknownItem {
                 // belum ada → buat baru
